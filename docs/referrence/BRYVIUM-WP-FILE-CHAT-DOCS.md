@@ -3,7 +3,7 @@
 **Document type:** Master plan, no code
 **Version of this doc:** 1.0
 **Plugin version target:** 1.0.0
-**Status:** D1 complete, D2 delivered, D3 storage implemented, D4 onward pending
+**Status:** D1–D3 complete, D4 text processing implemented, D5 onward pending
 
 ---
 

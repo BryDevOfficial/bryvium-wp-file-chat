@@ -25,3 +25,8 @@
 
 - [Day 6 notes](./day-06-notes.md): route, request validation, and response contract.
 - [Day 6 bugs](./day-06-bugs.md): nonce integration and deployment checks.
+
+## Day 7 — Rate Limiting and Cache
+
+- [Day 7 notes](./day-07-notes.md): limiter, cache, payload bound, and verification.
+- [Day 7 bugs](./day-07-bugs.md): trusted proxy and transient-store caveats.

@@ -3,7 +3,7 @@
 **Document type:** Master plan, no code
 **Version of this doc:** 1.0
 **Plugin version target:** 1.0.0
-**Status:** D1–D6 complete, D7 rate limiting and storage caching implemented, D8 onward pending
+**Status:** D1–D8 implemented; D9 onward pending
 
 ---
 

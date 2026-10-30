@@ -7,8 +7,8 @@ database tables.
 
 > **Development status:** This project is being built in daily stages. The
 > plugin bootstrap, build tooling, JSON storage, search processing/ranking,
-> and REST rate limiting and caching are implemented. The chat interface and
-> admin features are still in development.
+> REST rate limiting and caching, and the admin settings page are implemented.
+> The chat interface and knowledge manager are still in development.
 
 ## Requirements
 
@@ -53,7 +53,7 @@ composer fix
   planned backend modules.
 - `src/` — React and Tailwind source for the frontend.
 - `build/` — Compiled frontend assets.
-- `admin/` — Planned WordPress admin interface.
+- `admin/` — WordPress admin settings interface.
 - `languages/` — Translation files.
 - `docs/` — Project reference and development-session documentation.
 

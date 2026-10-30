@@ -93,6 +93,7 @@ final class Bryvium_Loader {
 		}
 
 		Bryvium_Rest::register();
+		Bryvium_Admin::register();
 
 		/**
 		 * Fires when the plugin is ready. Modules register hooks here

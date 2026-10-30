@@ -10,3 +10,8 @@
 
 - [Day 3 notes](./day-03-notes.md): storage API, data layout, and verification.
 - [Day 3 bugs](./day-03-bugs.md): known deployment caveats and follow-up checks.
+
+## Day 4 — Search Text Processing
+
+- [Day 4 notes](./day-04-notes.md): tokenizer behavior, examples, and handoff.
+- [Day 4 bugs](./day-04-bugs.md): limitations and follow-up verification.

@@ -20,6 +20,13 @@ final class Bryvium_Rest {
 	const MAX_QUESTION_LENGTH = 300;
 
 	/**
+	 * Maximum raw request body size in bytes.
+	 *
+	 * @var int
+	 */
+	const MAX_PAYLOAD_BYTES = 8192;
+
+	/**
 	 * Register this module with the WordPress REST API.
 	 *
 	 * @return void
@@ -60,6 +67,11 @@ final class Bryvium_Rest {
 	 * @return true|WP_Error
 	 */
 	public static function check_permission( $request ) {
+		$payload_error = self::validate_payload_size( $request );
+		if ( is_wp_error( $payload_error ) ) {
+			return $payload_error;
+		}
+
 		$nonce = $request->get_header( 'X-WP-Nonce' );
 		if ( is_string( $nonce ) && wp_verify_nonce( $nonce, 'wp_rest' ) ) {
 			return true;
@@ -138,6 +150,29 @@ final class Bryvium_Rest {
 			);
 		}
 
+		$rate_limit = Bryvium_Rate_Limiter::check();
+		if ( is_wp_error( $rate_limit ) ) {
+			$error_data = $rate_limit->get_error_data();
+			if ( is_array( $error_data ) && isset( $error_data['status'] ) && 429 === $error_data['status'] ) {
+				$retry_after = isset( $error_data['retry_after'] ) ? max( 1, (int) $error_data['retry_after'] ) : 1;
+				return new WP_REST_Response(
+					array(
+						'code'        => 'bryvium_wfc_rate_limited',
+						'message'     => $rate_limit->get_error_message(),
+						'retry_after' => $retry_after,
+					),
+					429,
+					array( 'Retry-After' => (string) $retry_after )
+				);
+			}
+
+			return new WP_Error(
+				'bryvium_wfc_rest_rate_limit_unavailable',
+				__( 'The chat service is temporarily unavailable.', 'bryvium-wp-file-chat' ),
+				array( 'status' => 503 )
+			);
+		}
+
 		$entries = Bryvium_Storage::get_all();
 		if ( is_wp_error( $entries ) ) {
 			return new WP_Error(
@@ -164,6 +199,25 @@ final class Bryvium_Rest {
 				'suggestions' => $result['suggestions'],
 			),
 			200
+		);
+	}
+
+	/**
+	 * Reject oversized request bodies before REST argument processing.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return true|WP_Error
+	 */
+	private static function validate_payload_size( $request ) {
+		$body = $request->get_body();
+		if ( strlen( $body ) <= self::MAX_PAYLOAD_BYTES ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'bryvium_wfc_rest_payload_too_large',
+			__( 'The request is too large. Please shorten your question and try again.', 'bryvium-wp-file-chat' ),
+			array( 'status' => 413 )
 		);
 	}
 

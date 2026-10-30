@@ -27,6 +27,8 @@ define( 'BRYVIUM_WFC_BASENAME', plugin_basename( __FILE__ ) );
 
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-loader.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-storage.php';
+require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-search.php';
+require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-rest.php';
 
 register_activation_hook( __FILE__, array( 'Bryvium_Loader', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Bryvium_Loader', 'deactivate' ) );

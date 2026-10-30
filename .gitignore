@@ -1,3 +1,7 @@
+# Dependencies
+/node_modules/
+/vendor/
+
 # Environment and local WordPress configuration
 .env
 .env.*
@@ -5,10 +9,11 @@
 /wp-config.php
 
 # Local data, database exports, and logs
+knowledge.json
+/bryvium-chat/
 *.sql
 *.sql.gz
 *.log
-/knowledge.json
 /knowledge.local.json
 
 # Private keys and local certificates
@@ -22,3 +27,14 @@
 Thumbs.db
 /.idea/
 /.vscode/
+/.vscode/*
+!.vscode/extensions.json
+
+# Tooling caches and local configuration
+.phpcs-cache
+/phpcs.xml
+composer.lock.bak
+
+# Release artifacts (compiled plugin assets in /build are intentionally kept)
+/dist/
+*.zip

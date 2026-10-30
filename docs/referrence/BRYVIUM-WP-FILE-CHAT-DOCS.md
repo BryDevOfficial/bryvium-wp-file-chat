@@ -3,7 +3,7 @@
 **Document type:** Master plan, no code
 **Version of this doc:** 1.0
 **Plugin version target:** 1.0.0
-**Status:** D1 complete, D2 delivered (verify with the D2 acceptance checks), D3 onward pending
+**Status:** D1 complete, D2 delivered, D3 storage implemented, D4 onward pending
 
 ---
 
@@ -92,7 +92,7 @@
 ### 3.3 Storage Design
 
 - Location: a dedicated folder inside the WordPress uploads directory.
-- The folder is protected with an `.htaccess` deny rule and a blank `index.php`. The file is only ever served through REST, never by direct URL.
+- The folder receives an Apache `.htaccess` deny rule and an `index.php` guard. Nginx does not read `.htaccess`; Nginx deployments must also deny direct requests to this folder in server configuration before storing real knowledge data.
 - Writes are atomic: write to a temporary file, then rename over the real file, while holding an exclusive lock.
 - Reads use a shared lock and a cache keyed by the file modification time.
 - Practical scale limit: about 1,000 entries or 2 MB. Larger sets are a roadmap item (sharding).
@@ -813,7 +813,7 @@ Each day lists the branch, goal, exact files, tasks, acceptance checks, commit m
 | Risk | Mitigation |
 |---|---|
 | Tools fail on paths with emoji or special characters | Keep the project in a plain ASCII folder path |
-| Nginx servers ignore `.htaccess` | Document a server rule for owners and keep the blank index file; REST-only access is the real protection |
+| Nginx servers ignore `.htaccess` | Require an Nginx deny rule for the storage directory; the blank index file only prevents directory listing and does not protect direct JSON URLs |
 | Page caching serves a stale nonce | Use short-lived nonces carefully and document cache exclusion for the REST route; handle expired nonce with a friendly retry |
 | Theme CSS collides with the widget | Prefixed utilities, no global reset, scoped box-sizing, high-specificity root |
 | Large knowledge files slow search | Cache by modification time, advertise limits, shard in v1.3 |

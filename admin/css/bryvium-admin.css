@@ -1,0 +1,108 @@
+.bwfc-admin {
+	max-width: 1120px;
+}
+
+.bwfc-admin h2 {
+	margin-top: 28px;
+}
+
+.bwfc-knowledge-filters {
+	display: flex;
+	align-items: end;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 16px 0;
+}
+
+.bwfc-knowledge-filters label,
+.bwfc-knowledge-editor label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.bwfc-knowledge-filters input,
+.bwfc-knowledge-filters select {
+	min-width: 180px;
+}
+
+.bwfc-knowledge-filter-field {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.bwfc-knowledge-table-wrap {
+	overflow-x: auto;
+}
+
+.bwfc-knowledge-table-wrap table {
+	min-width: 680px;
+}
+
+.bwfc-knowledge-table-wrap th,
+.bwfc-knowledge-table-wrap td {
+	vertical-align: middle;
+}
+
+.bwfc-knowledge-actions {
+	display: flex;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.bwfc-knowledge-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 14px;
+}
+
+.bwfc-knowledge-editor {
+	max-width: 700px;
+	margin-top: 32px;
+	padding: 1px 20px 12px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}
+
+.bwfc-knowledge-editor input.regular-text,
+.bwfc-knowledge-editor textarea.large-text {
+	width: 100%;
+	max-width: 560px;
+}
+
+.bwfc-knowledge-editor .description {
+	display: block;
+	margin-top: 5px;
+}
+
+.bwfc-knowledge-empty {
+	padding: 16px;
+	background: #fff;
+	border-left: 4px solid #2271b1;
+}
+
+@media screen and (max-width: 600px) {
+	.bwfc-knowledge-filters {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.bwfc-knowledge-filters input,
+	.bwfc-knowledge-filters select,
+	.bwfc-knowledge-filters button {
+		box-sizing: border-box;
+		width: 100%;
+	}
+
+	.bwfc-knowledge-pagination {
+		justify-content: space-between;
+	}
+
+	.bwfc-knowledge-editor {
+		padding-right: 14px;
+		padding-left: 14px;
+	}
+}

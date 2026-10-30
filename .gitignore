@@ -1,7 +1,7 @@
 # Dependencies
 /node_modules/
 /vendor/
-
+/docs/coming-soon/
 # Environment and local WordPress configuration
 .env
 .env.*

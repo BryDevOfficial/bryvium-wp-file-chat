@@ -1,0 +1,27 @@
+# Session-specific notes and handoff files
+/docs/session/
+
+# Environment and local WordPress configuration
+.env
+.env.*
+!.env.example
+/wp-config.php
+
+# Local data, database exports, and logs
+*.sql
+*.sql.gz
+*.log
+/knowledge.json
+/knowledge.local.json
+
+# Private keys and local certificates
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+/.idea/
+/.vscode/

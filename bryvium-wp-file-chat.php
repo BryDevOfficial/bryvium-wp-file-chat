@@ -26,6 +26,7 @@ define( 'BRYVIUM_WFC_URL', plugin_dir_url( __FILE__ ) );
 define( 'BRYVIUM_WFC_BASENAME', plugin_basename( __FILE__ ) );
 
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-loader.php';
+require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-storage.php';
 
 register_activation_hook( __FILE__, array( 'Bryvium_Loader', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Bryvium_Loader', 'deactivate' ) );

@@ -40,7 +40,7 @@ final class Bryvium_Loader {
 
 	/**
 	 * Activation: verify requirements, record installed version.
-	 * Storage directory creation arrives in D3.
+	 * Initialize the storage directory before recording activation.
 	 *
 	 * @return void
 	 */
@@ -49,6 +49,16 @@ final class Bryvium_Loader {
 			deactivate_plugins( BRYVIUM_WFC_BASENAME );
 			wp_die(
 				esc_html( self::requirements_message() ),
+				esc_html__( 'Plugin activation error', 'bryvium-wp-file-chat' ),
+				array( 'back_link' => true )
+			);
+		}
+
+		$storage_result = Bryvium_Storage::setup();
+		if ( is_wp_error( $storage_result ) ) {
+			deactivate_plugins( BRYVIUM_WFC_BASENAME );
+			wp_die(
+				esc_html( $storage_result->get_error_message() ),
 				esc_html__( 'Plugin activation error', 'bryvium-wp-file-chat' ),
 				array( 'back_link' => true )
 			);

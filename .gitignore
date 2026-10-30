@@ -2,6 +2,9 @@
 /node_modules/
 /vendor/
 
+# Reference material for future features
+/docs/referrence/coming-soon/
+
 # Environment and local WordPress configuration
 .env
 .env.*

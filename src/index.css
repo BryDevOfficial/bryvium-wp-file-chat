@@ -1,0 +1,14 @@
+/*
+ * Tailwind v4 without preflight, so host theme styles are not reset.
+ * Prefix utility classes with bwfc: to avoid theme collisions.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) prefix(bwfc);
+@import "tailwindcss/utilities.css" layer(utilities) prefix(bwfc);
+
+#bwfc-root,
+#bwfc-root *,
+#bwfc-root *::before,
+#bwfc-root *::after {
+  box-sizing: border-box;
+}

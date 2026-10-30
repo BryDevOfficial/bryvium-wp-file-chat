@@ -30,3 +30,8 @@
 
 - [Day 7 notes](./day-07-notes.md): limiter, cache, payload bound, and verification.
 - [Day 7 bugs](./day-07-bugs.md): trusted proxy and transient-store caveats.
+
+## Day 8 — Admin Settings
+
+- [Day 8 notes](./day-08-notes.md): settings API, admin page, and verification.
+- [Day 8 bugs](./day-08-bugs.md): known limitations and remaining live-WordPress checks.

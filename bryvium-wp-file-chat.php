@@ -27,6 +27,8 @@ define( 'BRYVIUM_WFC_BASENAME', plugin_basename( __FILE__ ) );
 
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-loader.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-storage.php';
+require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-settings.php';
+require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-admin.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-search.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-rate-limiter.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-rest.php';

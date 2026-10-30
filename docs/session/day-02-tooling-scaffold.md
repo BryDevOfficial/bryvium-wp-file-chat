@@ -76,7 +76,7 @@ PHP uses tabs (WPCS requires them). Frontend files use 2 spaces (Vite/React conv
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "require": {
-    "php": ">=7.4"
+    "php": ">=8.5"
   },
   "require-dev": {
     "wp-coding-standards/wpcs": "^3.0",
@@ -117,8 +117,8 @@ PHP uses tabs (WPCS requires them). Frontend files use 2 spaces (Vite/React conv
 	<rule ref="WordPress"/>
 	<rule ref="PHPCompatibilityWP"/>
 
-	<config name="testVersion" value="7.4-"/>
-	<config name="minimum_supported_wp_version" value="6.0"/>
+	<config name="testVersion" value="8.5-"/>
+	<config name="minimum_supported_wp_version" value="7.1.4"/>
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>

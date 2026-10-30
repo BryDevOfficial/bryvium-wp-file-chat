@@ -4,8 +4,8 @@
  * Plugin URI:        https://example.com/bryvium-wp-file-chat
  * Description:       A local, file-based chat widget. Answers visitor questions from a single JSON knowledge file. No external APIs, no database tables.
  * Version:           0.1.0
- * Requires at least: 6.0
- * Requires PHP:      7.4
+ * Requires at least: 7.1.4
+ * Requires PHP:      8.5
  * Author:            Bryan Granse
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,8 +18,8 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'BRYVIUM_WFC_VERSION', '0.1.0' );
-define( 'BRYVIUM_WFC_MIN_PHP', '7.4' );
-define( 'BRYVIUM_WFC_MIN_WP', '6.0' );
+define( 'BRYVIUM_WFC_MIN_PHP', '8.5' );
+define( 'BRYVIUM_WFC_MIN_WP', '7.1.4' );
 define( 'BRYVIUM_WFC_FILE', __FILE__ );
 define( 'BRYVIUM_WFC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BRYVIUM_WFC_URL', plugin_dir_url( __FILE__ ) );

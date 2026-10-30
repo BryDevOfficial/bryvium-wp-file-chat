@@ -35,3 +35,8 @@
 
 - [Day 8 notes](./day-08-notes.md): settings API, admin page, and verification.
 - [Day 8 bugs](./day-08-bugs.md): known limitations and remaining live-WordPress checks.
+
+## Day 9 — Knowledge Manager
+
+- [Day 9 notes](./day-09-notes.md): admin knowledge UI, REST client contract, and verification.
+- [Day 9 bugs](./day-09-bugs.md): API dependency and remaining live-WordPress checks.

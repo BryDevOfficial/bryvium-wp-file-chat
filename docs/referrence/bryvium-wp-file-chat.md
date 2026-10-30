@@ -49,7 +49,7 @@ Visitor types → React widget → POST /wp-json/bryvium/v1/chat (nonce + rate l
 | Security    | Nonces, capability checks (`manage_options`), `sanitize_*`/`wp_kses`, escaped output, REST `permission_callback`, per-IP rate limiting via transients, max payload sizes     |
 | Privacy     | No external calls, no cookies required, no personal data stored by default (chat logs are opt-in and local)                                                                  |
 | Frontend    | Single React root mounted by shortcode/footer hook, Tailwind prefixed (`bwfc-`) and scoped to avoid theme collisions, lazy-loaded                                            |
-| Standards   | WPCS (PHPCS ruleset), i18n-ready, `bryvium_` prefix, PHP 7.4+, WP 6.0+                                                                                                       |
+| Standards   | WPCS (PHPCS ruleset), i18n-ready, `bryvium_` prefix, PHP 8.5+, WP 7.1.4+                                                                                                     |
 | Scale limit | Designed for roughly 1,000 entries / 2 MB JSON. Beyond that, the roadmap adds sharded files                                                                                  |
 
 **Knowledge entry schema (draft)**
@@ -158,7 +158,7 @@ Copy, fill in the brackets, and paste:
 [Relevant function signatures / class names / schema. Not whole files.]
 
 **Constraints:**
-- Zero runtime dependencies, WPCS-compliant, PHP 7.4+
+- Zero runtime dependencies, WPCS-compliant, PHP 8.5+
 - Secure by default (sanitize in, escape out, capability + nonce checks)
 - [Any task-specific constraint]
 

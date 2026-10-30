@@ -58,7 +58,7 @@
 4. Sanitize on input, escape on output, check capability and nonce on every state-changing action.
 5. Build in small daily steps. Never request more than one day of code at once unless a day is explicitly split.
 6. Simplicity first. If a feature needs a manual, simplify the feature.
-7. The PHP in the plugin must stay parseable by PHP 7.0 syntax so that old hosts show a friendly error instead of a fatal parse error.
+7. The plugin requires PHP 8.5 or later. Keep the bootstrap parseable on older PHP versions where practical so unsupported hosts can receive a friendly requirements error instead of a syntax fatal.
 
 ---
 
@@ -359,7 +359,7 @@ Each day lists the branch, goal, exact files, tasks, acceptance checks, commit m
 
 > **Claude Prompt (D3)**
 >
-> You are my Senior WordPress Architect. Project: "Bryvium WP File Chat" (zero runtime dependencies, pure PHP, JSON flat-file, PHP 7.4+, WPCS-compliant, prefix `bryvium_`, text domain `bryvium-wp-file-chat`).
+> You are my Senior WordPress Architect. Project: "Bryvium WP File Chat" (zero runtime dependencies, pure PHP, JSON flat-file, PHP 8.5+, WordPress 7.1.4+, WPCS-compliant, prefix `bryvium_`, text domain `bryvium-wp-file-chat`).
 > Task D3: Generate the storage engine only.
 > Create `includes/class-bryvium-storage.php` and give me only the minimal edits for `includes/class-bryvium-loader.php` and `bryvium-wp-file-chat.php`.
 > Requirements: protected data directory inside uploads (deny rule plus blank index file); auto-create an empty valid knowledge file with `schema_version`; shared lock on read; exclusive lock plus temp file plus atomic rename on write; entry schema: id, title (max 200), answer (max 4000), keywords (max 20 items, 50 chars each), category (max 60), enabled, updated_at; methods for get all, get one, add, update, delete, count; return WP_Error on failure (missing file, corrupt JSON, no permission); sanitize and validate all input; generate unique ids.
@@ -382,7 +382,7 @@ Each day lists the branch, goal, exact files, tasks, acceptance checks, commit m
 
 > **Claude Prompt (D4)**
 >
-> Senior WordPress Architect mode. Project: Bryvium WP File Chat (pure PHP 7.4+, WPCS, prefix `bryvium_`).
+> Senior WordPress Architect mode. Project: Bryvium WP File Chat (pure PHP 8.5+, WordPress 7.1.4+, WPCS, prefix `bryvium_`).
 > Task D4: Generate search engine part 1 only: text processing.
 > Files: `includes/class-bryvium-search.php` (text processing methods only; leave clearly marked space for scoring in D5) and `includes/data/stopwords-en.php` (returns an array).
 > Requirements: normalize (lowercase, strip punctuation, collapse whitespace, basic accent folding, UTF-8 safe using mb functions with fallback); tokenizer with min token length of 2; stopword removal; light stemming (plural and common suffixes); a public method that returns a clean token array from a raw string; cap input length; stateless and deterministic.
@@ -700,7 +700,7 @@ Each day lists the branch, goal, exact files, tasks, acceptance checks, commit m
 - **Branch:** `feature/d20-qa`
 - **Goal:** Verified compatibility.
 - **Files:** create `docs/QA-MATRIX.md`; modify code only for bugs found.
-- **Tasks:** test on PHP 7.4, 8.1, 8.3 and the latest WordPress; test on at least three themes (default block theme, a classic theme, a heavily styled theme); test with common caching plugins and with a page cache purge after edits; test multisite; test Apache and Nginx notes for folder protection; test browsers (Chrome, Firefox, Safari, mobile Safari, mobile Chrome); test with a conflicting plugin that loads React; record pass or fail with notes.
+- **Tasks:** test on PHP 8.5 and later supported releases, and the latest WordPress; test on at least three themes (default block theme, a classic theme, a heavily styled theme); test with common caching plugins and with a page cache purge after edits; test multisite; test Apache and Nginx notes for folder protection; test browsers (Chrome, Firefox, Safari, mobile Safari, mobile Chrome); test with a conflicting plugin that loads React; record pass or fail with notes.
 - **Acceptance:** matrix complete; blocking bugs fixed; known limitations written down.
 - **Commit:** `test: complete QA matrix and fix findings`
 - **Handoff:** known limitations list.
@@ -776,7 +776,7 @@ Each day lists the branch, goal, exact files, tasks, acceptance checks, commit m
 
 **Standard header for any extra request (optional)**
 
-> Project: Bryvium WP File Chat. Zero runtime dependencies, pure PHP 7.4+, JSON flat-file, WPCS, prefix `bryvium_`, text domain `bryvium-wp-file-chat`, React plus Tailwind v4 (`bwfc:` prefix, no preflight) built with Vite. Task: [what you need]. Files: [exact paths]. Context: [signatures only]. Output: code only for those files, short comments, then a 3-step test, a commit message, and a 2-line handoff.
+> Project: Bryvium WP File Chat. Zero runtime dependencies, pure PHP 8.5+, WordPress 7.1.4+, JSON flat-file, WPCS, prefix `bryvium_`, text domain `bryvium-wp-file-chat`, React plus Tailwind v4 (`bwfc:` prefix, no preflight) built with Vite. Task: [what you need]. Files: [exact paths]. Context: [signatures only]. Output: code only for those files, short comments, then a 3-step test, a commit message, and a 2-line handoff.
 
 ---
 

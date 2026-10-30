@@ -3,7 +3,7 @@
 **Document type:** Master plan, no code
 **Version of this doc:** 1.0
 **Plugin version target:** 1.0.0
-**Status:** D1–D4 complete, D5 search scoring implemented, D6 onward pending
+**Status:** D1–D5 complete, D6 public chat REST endpoint implemented, D7 onward pending
 
 ---
 

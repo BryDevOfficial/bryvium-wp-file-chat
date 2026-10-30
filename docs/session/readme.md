@@ -20,3 +20,8 @@
 
 - [Day 5 notes](./day-05-notes.md): scoring API, result shape, and verification.
 - [Day 5 bugs](./day-05-bugs.md): confidence and fuzzy-match limitations.
+
+## Day 6 — Public Chat REST Endpoint
+
+- [Day 6 notes](./day-06-notes.md): route, request validation, and response contract.
+- [Day 6 bugs](./day-06-bugs.md): nonce integration and deployment checks.

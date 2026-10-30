@@ -6,9 +6,9 @@ site owner's server. The project is designed to avoid external APIs and custom
 database tables.
 
 > **Development status:** This project is being built in daily stages. The
-> plugin bootstrap, build tooling, JSON storage, and search text processing
-> and ranking are implemented. The chat interface, REST API, and admin
-> features are still in development.
+> plugin bootstrap, build tooling, JSON storage, search text processing and
+> ranking, and the public chat REST endpoint are implemented. The chat
+> interface and admin features are still in development.
 
 ## Requirements
 

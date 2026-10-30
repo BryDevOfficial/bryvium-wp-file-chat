@@ -92,6 +92,8 @@ final class Bryvium_Loader {
 			return;
 		}
 
+		Bryvium_Rest::register();
+
 		/**
 		 * Fires when the plugin is ready. Modules register hooks here
 		 * (storage D3, REST D6, admin D8, widget D12).

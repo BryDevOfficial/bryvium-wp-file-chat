@@ -16,6 +16,101 @@ defined( 'ABSPATH' ) || exit;
 final class Bryvium_Storage {
 
 	/**
+	 * Parsed document transient lifetime.
+	 *
+	 * @var int
+	 */
+	const CACHE_TTL = HOUR_IN_SECONDS;
+
+	/**
+	 * Read a document under a shared lock, using its current file metadata
+	 * to identify a cached parse.
+	 *
+	 * @return array|WP_Error
+	 */
+	private static function read_document() {
+		$paths = self::prepare_storage();
+		if ( is_wp_error( $paths ) ) {
+			return $paths;
+		}
+
+		$lock = self::acquire_lock( $paths, LOCK_SH );
+		if ( is_wp_error( $lock ) ) {
+			return $lock;
+		}
+
+		try {
+			clearstatcache( true, $paths['data'] );
+			if ( is_file( $paths['data'] ) && is_readable( $paths['data'] ) ) {
+				$modified = filemtime( $paths['data'] );
+				$size     = filesize( $paths['data'] );
+
+				if ( false !== $modified && false !== $size ) {
+					$cache_key = self::get_cache_key( $paths['data'], $modified, $size );
+					$cached    = get_transient( $cache_key );
+
+					if ( is_array( $cached ) && self::is_valid_document( $cached ) ) {
+						return $cached;
+					}
+
+					$document = self::read_document_unlocked( $paths );
+					if ( is_wp_error( $document ) ) {
+						return $document;
+					}
+
+					set_transient( $cache_key, $document, self::CACHE_TTL );
+					set_transient( self::get_cache_pointer_key( $paths['data'] ), $cache_key, self::CACHE_TTL );
+					return $document;
+				}
+			}
+
+			return self::read_document_unlocked( $paths );
+		} finally {
+			self::release_lock( $lock );
+		}
+	}
+
+	/**
+	 * Create a transient key from the data path and file modification time.
+	 *
+	 * @param string $path Data file path.
+	 * @param int    $modified Modification time.
+	 * @param int    $size File size.
+	 * @return string
+	 */
+	private static function get_cache_key( $path, $modified, $size ) {
+		return 'bryvium_wfc_data_' . md5( $path . '|' . $modified . '|' . $size );
+	}
+
+	/**
+	 * Get the transient key that points to the most recently cached version.
+	 *
+	 * @param string $path Data file path.
+	 * @return string
+	 */
+	private static function get_cache_pointer_key( $path ) {
+		return 'bryvium_wfc_data_pointer_' . md5( $path );
+	}
+
+	/**
+	 * Delete cached versions after a successful document replacement.
+	 *
+	 * @param string $path Data file path.
+	 * @return void
+	 */
+	private static function invalidate_cache( $path ) {
+		$pointer_key = self::get_cache_pointer_key( $path );
+		$cache_key   = get_transient( $pointer_key );
+
+		if ( is_string( $cache_key ) && '' !== $cache_key ) {
+			delete_transient( $cache_key );
+		}
+
+		delete_transient( $pointer_key );
+		clearstatcache( true, $path );
+	}
+
+	/**
 	 * Current on-disk schema version.
 	 *
 	 * @var int
@@ -366,29 +461,6 @@ final class Bryvium_Storage {
 	}
 
 	/**
-	 * Read a document under a shared lock.
-	 *
-	 * @return array|WP_Error
-	 */
-	private static function read_document() {
-		$paths = self::prepare_storage();
-		if ( is_wp_error( $paths ) ) {
-			return $paths;
-		}
-
-		$lock = self::acquire_lock( $paths, LOCK_SH );
-		if ( is_wp_error( $lock ) ) {
-			return $lock;
-		}
-
-		try {
-			return self::read_document_unlocked( $paths );
-		} finally {
-			self::release_lock( $lock );
-		}
-	}
-
-	/**
 	 * Read and validate a document while the caller holds a lock.
 	 *
 	 * @param array $paths Storage paths.
@@ -481,13 +553,18 @@ final class Bryvium_Storage {
 			return self::error( 'encode_failed', __( 'The knowledge data could not be encoded.', 'bryvium-wp-file-chat' ) );
 		}
 
-		return self::write_file_atomically(
+		$write_result = self::write_file_atomically(
 			$paths['directory'],
 			$paths['data'],
 			$encoded,
 			'write_failed',
 			__( 'The knowledge data could not be written.', 'bryvium-wp-file-chat' )
 		);
+		if ( ! is_wp_error( $write_result ) ) {
+			self::invalidate_cache( $paths['data'] );
+		}
+
+		return $write_result;
 	}
 
 	/**

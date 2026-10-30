@@ -15,3 +15,8 @@
 
 - [Day 4 notes](./day-04-notes.md): tokenizer behavior, examples, and handoff.
 - [Day 4 bugs](./day-04-bugs.md): limitations and follow-up verification.
+
+## Day 5 — Search Scoring
+
+- [Day 5 notes](./day-05-notes.md): scoring API, result shape, and verification.
+- [Day 5 bugs](./day-05-bugs.md): confidence and fuzzy-match limitations.

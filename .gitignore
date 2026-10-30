@@ -1,7 +1,7 @@
 # Dependencies
 /node_modules/
 /vendor/
-
+/docs/coming-soon/
 # Environment and local WordPress configuration
 .env
 .env.*
@@ -38,3 +38,5 @@ composer.lock.bak
 # Release artifacts (compiled plugin assets in /build are intentionally kept)
 /dist/
 *.zip
+docs/referrence/coming-soon/bryvium wp file chat docs v1.3 new features.md
+docs/referrence/coming-soon/bryvium wp file chat docs v1.2 new features.md

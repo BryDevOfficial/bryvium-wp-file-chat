@@ -6,9 +6,9 @@ site owner's server. The project is designed to avoid external APIs and custom
 database tables.
 
 > **Development status:** This project is being built in daily stages. The
-> plugin bootstrap, build tooling, JSON storage engine, and initial search
-> text processing are implemented. The chat interface, REST API, search
-> scoring, and admin features are still in development.
+> plugin bootstrap, build tooling, JSON storage, and search text processing
+> and ranking are implemented. The chat interface, REST API, and admin
+> features are still in development.
 
 ## Requirements
 
@@ -49,8 +49,8 @@ composer fix
 ## Project layout
 
 - `bryvium-wp-file-chat.php` — WordPress plugin entry point and constants.
-- `includes/` — PHP lifecycle, JSON storage, text processing, and planned
-  backend modules.
+- `includes/` — PHP lifecycle, JSON storage, search processing/ranking, and
+  planned backend modules.
 - `src/` — React and Tailwind source for the frontend.
 - `build/` — Compiled frontend assets.
 - `admin/` — Planned WordPress admin interface.

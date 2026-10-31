@@ -34,6 +34,7 @@ require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-rate-limiter.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-rest.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-importer.php';
 require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-rest-admin.php';
+require_once BRYVIUM_WFC_PATH . 'includes/class-bryvium-widget.php';
 
 register_activation_hook( __FILE__, array( 'Bryvium_Loader', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Bryvium_Loader', 'deactivate' ) );

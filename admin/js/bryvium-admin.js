@@ -3,10 +3,11 @@
 
 	const config = window.BryviumAdminConfig;
 	const rows = document.getElementById( 'bwfc-knowledge-entries' );
-	if ( ! config || ! rows ) {
+	if ( ! config ) {
 		return;
 	}
 
+	if ( rows ) {
 	const elements = {
 		notice: document.getElementById( 'bwfc-knowledge-notice' ),
 		empty: document.getElementById( 'bwfc-knowledge-empty' ),
@@ -339,4 +340,162 @@
 	elements.form.addEventListener( 'submit', saveEntry );
 	elements.cancel.addEventListener( 'click', resetForm );
 	loadEntries();
+	}
+
+	const importForm = document.getElementById( 'bwfc-import-form' );
+	if ( ! importForm ) {
+		return;
+	}
+
+	const tools = {
+		notice: document.getElementById( 'bwfc-tools-notice' ),
+		exportButton: document.getElementById( 'bwfc-export-button' ),
+		file: document.getElementById( 'bwfc-import-file' ),
+		content: document.getElementById( 'bwfc-import-content' ),
+		mode: document.getElementById( 'bwfc-import-mode' ),
+		importButton: document.getElementById( 'bwfc-import-button' ),
+		summary: document.getElementById( 'bwfc-import-summary' ),
+		counts: document.getElementById( 'bwfc-import-summary-counts' ),
+		backup: document.getElementById( 'bwfc-import-backup' ),
+		errors: document.getElementById( 'bwfc-import-errors' ),
+	};
+
+	function showToolsNotice( message, type ) {
+		tools.notice.textContent = message;
+		tools.notice.className = 'notice notice-' + type;
+		tools.notice.hidden = false;
+	}
+
+	function clearImportSummary() {
+		tools.summary.hidden = true;
+		tools.counts.textContent = '';
+		tools.backup.textContent = '';
+		tools.backup.hidden = true;
+		tools.errors.replaceChildren();
+	}
+
+	function showImportSummary( summary ) {
+		const errors = Array.isArray( summary.errors ) ? summary.errors : [];
+		tools.counts.textContent = config.strings.uploadSummary
+			.replace( '%1$d', String( summary.added || 0 ) )
+			.replace( '%2$d', String( summary.updated || 0 ) )
+			.replace( '%3$d', String( summary.skipped || 0 ) )
+			.replace( '%4$d', String( errors.length ) );
+		if ( summary.backup ) {
+			tools.backup.textContent = config.strings.backupCreated.replace( '%s', summary.backup );
+			tools.backup.hidden = false;
+		}
+		errors.forEach( function ( message ) {
+			const item = document.createElement( 'li' );
+			item.textContent = message;
+			tools.errors.appendChild( item );
+		} );
+		tools.summary.hidden = false;
+	}
+
+	async function exportKnowledge() {
+		tools.exportButton.disabled = true;
+		try {
+			const response = await fetch( config.exportUrl, {
+				credentials: 'same-origin',
+				headers: { 'X-WP-Nonce': config.nonce },
+			} );
+			if ( ! response.ok ) {
+				const body = await response.json().catch( function () {
+					return {};
+				} );
+				throw new Error( body.message || config.strings.exportError );
+			}
+
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL( blob );
+			const link = document.createElement( 'a' );
+			link.href = url;
+			link.download = 'bryvium-knowledge.json';
+			document.body.appendChild( link );
+			link.click();
+			link.remove();
+			window.setTimeout( function () {
+				window.URL.revokeObjectURL( url );
+			}, 1000 );
+			showToolsNotice( config.strings.exportSuccess, 'success' );
+		} catch ( error ) {
+			showToolsNotice( error.message || config.strings.exportError, 'error' );
+		} finally {
+			tools.exportButton.disabled = false;
+		}
+	}
+
+	async function importKnowledge( event ) {
+		event.preventDefault();
+		tools.notice.hidden = true;
+		clearImportSummary();
+
+		const file = tools.file.files && tools.file.files[0] ? tools.file.files[0] : null;
+		const pastedContent = tools.content.value.trim();
+		if ( ! file && ! pastedContent ) {
+			showToolsNotice( config.strings.chooseSource, 'error' );
+			return;
+		}
+		if ( file && pastedContent ) {
+			showToolsNotice( config.strings.chooseOneSource, 'error' );
+			return;
+		}
+
+		if ( file && file.size > config.maxImportBytes ) {
+			showToolsNotice( config.strings.importTooLarge, 'error' );
+			return;
+		}
+		if ( ! file && new TextEncoder().encode( pastedContent ).length > config.maxImportBytes ) {
+			showToolsNotice( config.strings.importTooLarge, 'error' );
+			return;
+		}
+
+		const mode = tools.mode.value;
+		if ( 'replace' === mode && ! window.confirm( config.strings.importConfirm ) ) {
+			return;
+		}
+
+		const body = new FormData();
+		body.append( 'mode', mode );
+		if ( file ) {
+			body.append( 'file', file, file.name );
+		} else {
+			body.append( 'content', pastedContent );
+		}
+
+		tools.importButton.disabled = true;
+		try {
+			const response = await fetch( config.importUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'X-WP-Nonce': config.nonce },
+				body: body,
+			} );
+			const result = await response.json().catch( function () {
+				return {};
+			} );
+			if ( ! response.ok ) {
+				const error = new Error( result.message || config.strings.importError );
+				error.data = result.data || {};
+				throw error;
+			}
+
+			const summary = result.summary || {};
+			showImportSummary( summary );
+			showToolsNotice( config.strings.importSuccess, 'success' );
+			tools.file.value = '';
+			tools.content.value = '';
+		} catch ( error ) {
+			showToolsNotice( error.message || config.strings.importError, 'error' );
+			if ( error.data && Array.isArray( error.data.errors ) ) {
+				showImportSummary( { errors: error.data.errors } );
+			}
+		} finally {
+			tools.importButton.disabled = false;
+		}
+	}
+
+	tools.exportButton.addEventListener( 'click', exportKnowledge );
+	importForm.addEventListener( 'submit', importKnowledge );
 }() );

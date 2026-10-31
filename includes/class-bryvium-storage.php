@@ -360,6 +360,135 @@ final class Bryvium_Storage {
 	}
 
 	/**
+	 * Import validated entries atomically, backing up the current document on replace.
+	 *
+	 * @param array  $entries Validated knowledge entries.
+	 * @param string $mode Import mode: merge or replace.
+	 * @return array|WP_Error
+	 */
+	public static function import_entries( $entries, $mode ) {
+		if ( ! in_array( $mode, array( 'merge', 'replace' ), true ) || ! self::is_valid_document(
+			array(
+				'schema_version' => self::SCHEMA_VERSION,
+				'entries'        => $entries,
+			)
+		) ) {
+			return self::error( 'invalid_import', __( 'The imported knowledge entries are invalid.', 'bryvium-wp-file-chat' ), 400 );
+		}
+
+		$paths = self::prepare_storage();
+		if ( is_wp_error( $paths ) ) {
+			return $paths;
+		}
+
+		$lock = self::acquire_lock( $paths, LOCK_EX );
+		if ( is_wp_error( $lock ) ) {
+			return $lock;
+		}
+
+		try {
+			$document = self::read_document_unlocked( $paths );
+			if ( is_wp_error( $document ) ) {
+				return $document;
+			}
+
+			$summary = array(
+				'added'   => 0,
+				'updated' => 0,
+				'skipped' => 0,
+				'errors'  => array(),
+				'backup'  => '',
+			);
+
+			if ( 'replace' === $mode ) {
+				$current_contents = @file_get_contents( $paths['data'] );
+				if ( false === $current_contents ) {
+					return self::error( 'backup_read_failed', __( 'The current knowledge file could not be backed up. No data was changed.', 'bryvium-wp-file-chat' ) );
+				}
+
+				$backup_name = sprintf(
+					'knowledge-backup-%s-%s.json',
+					gmdate( 'Ymd-His' ),
+					substr( str_replace( '-', '', wp_generate_uuid4() ), 0, 12 )
+				);
+				$backup_path = trailingslashit( $paths['directory'] ) . $backup_name;
+				$backup      = self::write_file_atomically(
+					$paths['directory'],
+					$backup_path,
+					$current_contents,
+					'backup_write_failed',
+					__( 'A backup of the current knowledge file could not be created. No data was changed.', 'bryvium-wp-file-chat' )
+				);
+				if ( is_wp_error( $backup ) ) {
+					return $backup;
+				}
+				$summary['backup'] = $backup_name;
+
+				foreach ( $entries as $entry ) {
+					$entry_index = self::find_entry_index( $document['entries'], $entry['id'] );
+					if ( false === $entry_index ) {
+						++$summary['added'];
+					} elseif ( self::same_entry_content( $document['entries'][ $entry_index ], $entry ) ) {
+						++$summary['skipped'];
+					} else {
+						++$summary['updated'];
+					}
+				}
+
+				$document['entries'] = $entries;
+				$write_result        = self::write_document( $paths, $document );
+				if ( is_wp_error( $write_result ) ) {
+					return $write_result;
+				}
+			} else {
+				$changed = false;
+				foreach ( $entries as $entry ) {
+					$entry_index = self::find_entry_index( $document['entries'], $entry['id'] );
+					if ( false === $entry_index ) {
+						$document['entries'][] = $entry;
+						++$summary['added'];
+						$changed = true;
+					} elseif ( self::same_entry_content( $document['entries'][ $entry_index ], $entry ) ) {
+						++$summary['skipped'];
+					} else {
+						$document['entries'][ $entry_index ] = $entry;
+						++$summary['updated'];
+						$changed = true;
+					}
+				}
+
+				if ( $changed ) {
+					$write_result = self::write_document( $paths, $document );
+					if ( is_wp_error( $write_result ) ) {
+						return $write_result;
+					}
+				}
+			}
+		} finally {
+			self::release_lock( $lock );
+		}
+
+		return $summary;
+	}
+
+	/**
+	 * Compare content without treating the original update timestamp as a change.
+	 *
+	 * @param array $current Current entry.
+	 * @param array $imported Imported entry.
+	 * @return bool
+	 */
+	private static function same_entry_content( $current, $imported ) {
+		foreach ( array( 'title', 'answer', 'keywords', 'category', 'enabled' ) as $key ) {
+			if ( $current[ $key ] !== $imported[ $key ] ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Ensure storage exists and return its paths.
 	 *
 	 * @return array|WP_Error

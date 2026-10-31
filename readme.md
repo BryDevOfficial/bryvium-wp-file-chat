@@ -8,8 +8,8 @@ database tables.
 > **Development status:** This project is being built in daily stages. The
 > plugin bootstrap, build tooling, JSON storage, search processing/ranking,
 > REST rate limiting and caching, admin settings, knowledge manager, and
-> capability-gated admin REST API are implemented. The chat interface and
-> import/export tools are still in development.
+> capability-gated admin REST API and JSON import/export tools are implemented.
+> The chat interface is still in development.
 
 ## Requirements
 
@@ -54,7 +54,7 @@ composer fix
   REST endpoints.
 - `src/` — React and Tailwind source for the frontend.
 - `build/` — Compiled frontend assets.
-- `admin/` — WordPress admin settings and knowledge manager interfaces.
+- `admin/` — WordPress admin settings, knowledge manager, and data tools.
 - `languages/` — Translation files.
 - `docs/` — Project reference and development-session documentation.
 

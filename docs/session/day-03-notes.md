@@ -2,10 +2,11 @@
 
 ## Implemented
 
-- Added `Bryvium_Storage` for protected uploads storage at
-  `wp-content/uploads/bryvium-chat/`.
-- Activation creates `.htaccess`, `index.php`, a stable lock file, and an
-  initial `knowledge.json` document with schema version 1.
+- Added `Bryvium_Storage` for protected JSON storage. Day 17 moves the active
+  storage location outside the document root and migrates legacy uploads data.
+- Initial activation creates a stable lock file and an empty `knowledge.json`
+  document with schema version 1. Legacy uploads protection files are kept
+  for defense in depth.
 - Storage methods also initialize missing storage lazily.
 - Reads use a shared `flock()` lock. Mutations use an exclusive lock, write a
   same-directory temporary file, and replace the JSON file with a rename.
@@ -21,8 +22,8 @@
 - Focused PHP smoke tests passed for initialization, add/get/update/delete,
   field sanitization and validation, repeated atomic replacement, corruption
   errors, activation setup, and lazy initialization.
-- Verify direct URL denial in the actual deployment server. Nginx does not
-  process `.htaccess`; it needs a matching deny rule in server configuration.
+- Day 17 moved active data outside the document root; verify the migration
+  and direct URL denial on the actual deployment server.
 
 ## Handoff
 

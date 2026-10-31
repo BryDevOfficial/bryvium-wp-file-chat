@@ -67,14 +67,15 @@ final class Bryvium_Widget {
 			'bryvium-wfc-widget',
 			'BryviumChatConfig',
 			array(
-				'restUrl'      => esc_url_raw( rest_url() ),
-				'restNonce'    => wp_create_nonce( 'wp_rest' ),
-				'widgetTitle'  => $settings['widget_title'],
-				'greeting'     => $settings['greeting'],
-				'placeholder'  => $settings['placeholder'],
-				'position'     => $settings['position'],
-				'saveHistory'  => (bool) $settings['save_history'],
-				'primaryColor' => $settings['primary_color'],
+				'restUrl'         => esc_url_raw( rest_url() ),
+				'restNonce'       => wp_create_nonce( 'wp_rest' ),
+				'widgetTitle'     => $settings['widget_title'],
+				'greeting'        => $settings['greeting'],
+				'fallbackMessage' => $settings['fallback_message'],
+				'placeholder'     => $settings['placeholder'],
+				'position'        => $settings['position'],
+				'saveHistory'     => (bool) $settings['save_history'],
+				'primaryColor'    => $settings['primary_color'],
 			)
 		);
 	}

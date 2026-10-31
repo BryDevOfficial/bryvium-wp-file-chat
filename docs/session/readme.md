@@ -40,3 +40,8 @@
 
 - [Day 9 notes](./day-09-notes.md): admin knowledge UI, REST client contract, and verification.
 - [Day 9 bugs](./day-09-bugs.md): API dependency and remaining live-WordPress checks.
+
+## Day 10 — Admin REST API
+
+- [Day 10 notes](./day-10-notes.md): capability-gated CRUD routes, response shapes, and verification.
+- [Day 10 bugs](./day-10-bugs.md): remaining live-WordPress and deployment checks.

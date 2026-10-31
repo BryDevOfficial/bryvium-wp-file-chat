@@ -78,6 +78,16 @@
 	margin-top: 5px;
 }
 
+.bwfc-field-error {
+	display: block;
+	margin-top: 5px;
+	color: #b32d2e;
+}
+
+.bwfc-knowledge-editor [aria-invalid="true"] {
+	border-color: #b32d2e;
+}
+
 .bwfc-knowledge-empty {
 	padding: 16px;
 	background: #fff;

@@ -94,9 +94,10 @@ final class Bryvium_Admin {
 				'restUrl' => rest_url( 'bryvium/v1/entries' ),
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'strings' => array(
-					'loadError'      => __( 'Could not load knowledge entries. The admin API may not be available yet.', 'bryvium-wp-file-chat' ),
+					'loadError'      => __( 'Could not load knowledge entries. Please try again.', 'bryvium-wp-file-chat' ),
 					'saveError'      => __( 'Could not save this entry. Please try again.', 'bryvium-wp-file-chat' ),
 					'deleteError'    => __( 'Could not delete this entry. Please try again.', 'bryvium-wp-file-chat' ),
+					'loading'        => __( 'Loading…', 'bryvium-wp-file-chat' ),
 					'addTitle'       => __( 'Add a knowledge entry', 'bryvium-wp-file-chat' ),
 					'editTitle'      => __( 'Edit knowledge entry', 'bryvium-wp-file-chat' ),
 					'addButton'      => __( 'Add entry', 'bryvium-wp-file-chat' ),

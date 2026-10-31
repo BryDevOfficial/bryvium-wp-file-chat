@@ -27,9 +27,22 @@
 		submit: document.getElementById( 'bwfc-knowledge-submit' ),
 		cancel: document.getElementById( 'bwfc-knowledge-cancel' ),
 	};
+	const formNotice = document.createElement( 'div' );
+	formNotice.className = 'notice';
+	formNotice.setAttribute( 'role', 'alert' );
+	formNotice.hidden = true;
+	elements.form.insertBefore( formNotice, elements.form.firstChild );
+	const fields = {
+		title: elements.title,
+		answer: elements.answer,
+		keywords: elements.keywords,
+		category: elements.categoryInput,
+		enabled: elements.enabled,
+	};
 	const pageSize = 10;
 	let currentPage = 1;
 	let totalPages = 1;
+	let isSaving = false;
 
 	function showNotice( message, type ) {
 		elements.notice.textContent = message;
@@ -43,6 +56,44 @@
 		elements.notice.hidden = true;
 	}
 
+	function clearFieldErrors() {
+		formNotice.textContent = '';
+		formNotice.className = 'notice';
+		formNotice.hidden = true;
+		Object.values( fields ).forEach( function ( field ) {
+			field.removeAttribute( 'aria-invalid' );
+			const error = field.parentElement.querySelector( '.bwfc-field-error' );
+			if ( error ) {
+				error.remove();
+			}
+		} );
+	}
+
+	function showFormError( error ) {
+		clearFieldErrors();
+		formNotice.textContent = error.message || config.strings.saveError;
+		formNotice.className = 'notice notice-error';
+		formNotice.hidden = false;
+
+		const params = error.data && error.data.params ? error.data.params : {};
+		const invalidFields = error.data && Array.isArray( error.data.fields )
+			? error.data.fields
+			: Object.keys( params );
+		invalidFields.forEach( function ( key ) {
+			const field = fields[ key ];
+			if ( ! field ) {
+				return;
+			}
+			const message = params[ key ] || error.message;
+			const fieldError = document.createElement( 'span' );
+			fieldError.className = 'bwfc-field-error';
+			fieldError.setAttribute( 'role', 'alert' );
+			fieldError.textContent = message;
+			field.setAttribute( 'aria-invalid', 'true' );
+			field.insertAdjacentElement( 'afterend', fieldError );
+		} );
+	}
+
 	function addCell( row, value ) {
 		const cell = document.createElement( 'td' );
 		cell.textContent = value || '—';
@@ -51,6 +102,7 @@
 	}
 
 	function resetForm() {
+		clearFieldErrors();
 		elements.form.reset();
 		elements.id.value = '';
 		elements.enabled.checked = true;
@@ -129,6 +181,7 @@
 		if ( ! response.ok ) {
 			const error = new Error( body.message || config.strings.saveError );
 			error.status = response.status;
+			error.data = body.data || {};
 			throw error;
 		}
 		return { body: body, response: response };
@@ -136,6 +189,9 @@
 
 	async function loadEntries() {
 		clearNotice();
+		elements.page.textContent = config.strings.loading;
+		elements.previous.disabled = true;
+		elements.next.disabled = true;
 		const params = new URLSearchParams( {
 			search: elements.search.value.trim(),
 			category: elements.category.value,
@@ -183,25 +239,36 @@
 
 	async function saveEntry( event ) {
 		event.preventDefault();
+		clearFieldErrors();
 		clearNotice();
+		if ( isSaving ) {
+			return;
+		}
 		if ( ! elements.form.reportValidity() ) {
 			return;
 		}
 
 		const payload = makePayload();
 		if ( ! payload.title || ! payload.answer ) {
-			showNotice( config.strings.requiredFields, 'error' );
+			const missing = payload.title ? 'answer' : 'title';
+			const error = new Error( config.strings.requiredFields );
+			error.data = { fields: [ missing ] };
+			showFormError( error );
 			( payload.title ? elements.answer : elements.title ).focus();
 			return;
 		}
 		if ( payload.keywords.length > 20 ) {
-			showNotice( config.strings.keywordLimit, 'error' );
+			const error = new Error( config.strings.keywordLimit );
+			error.data = { fields: [ 'keywords' ] };
+			showFormError( error );
 			elements.keywords.focus();
 			return;
 		}
 
 		const editing = Boolean( elements.id.value );
 		const url = editing ? config.restUrl + '/' + encodeURIComponent( elements.id.value ) : config.restUrl;
+		isSaving = true;
+		elements.submit.disabled = true;
 		try {
 			await request( url, {
 				method: editing ? 'PUT' : 'POST',
@@ -214,7 +281,10 @@
 				showNotice( editing ? config.strings.updated : config.strings.added, 'success' );
 			}
 		} catch ( error ) {
-			showNotice( error.message || config.strings.saveError, 'error' );
+			showFormError( error );
+		} finally {
+			isSaving = false;
+			elements.submit.disabled = false;
 		}
 	}
 
@@ -223,6 +293,10 @@
 			return;
 		}
 
+		const deleteButton = document.activeElement;
+		if ( deleteButton ) {
+			deleteButton.disabled = true;
+		}
 		try {
 			await request( config.restUrl + '/' + encodeURIComponent( entry.id ), { method: 'DELETE' } );
 			if ( elements.id.value === entry.id ) {
@@ -234,6 +308,10 @@
 			}
 		} catch ( error ) {
 			showNotice( error.message || config.strings.deleteError, 'error' );
+		} finally {
+			if ( deleteButton ) {
+				deleteButton.disabled = false;
+			}
 		}
 	}
 

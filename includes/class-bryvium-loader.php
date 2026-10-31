@@ -93,11 +93,12 @@ final class Bryvium_Loader {
 		}
 
 		Bryvium_Rest::register();
+		Bryvium_Rest_Admin::register();
 		Bryvium_Admin::register();
 
 		/**
 		 * Fires when the plugin is ready. Modules register hooks here
-		 * (storage D3, REST D6, admin D8, widget D12).
+		 * (storage D3, REST D6/D10, admin D8/D9, widget D12).
 		 */
 		do_action( 'bryvium_wfc_loaded' );
 	}

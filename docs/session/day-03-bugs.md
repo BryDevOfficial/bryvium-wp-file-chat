@@ -1,14 +1,13 @@
 # Day 3 Bugs and Deployment Notes
 
-## Server configuration caveat
+## Resolved in Day 17
 
-The storage class writes an Apache `.htaccess` deny rule and an `index.php`
-guard. Nginx ignores `.htaccess`, so the host must deny direct HTTP access to
-`/wp-content/uploads/bryvium-chat/` in its Nginx configuration. Direct URL
-protection cannot be verified without the target web server.
+- Active knowledge data is now kept outside the web root, and legacy files are
+  migrated and removed after verification. A server-level Nginx deny rule for
+  the old uploads directory remains defense in depth.
 
 ## Open verification
 
 - Run the CRUD and corrupted-JSON checks against a real WordPress install.
-- Verify concurrent requests and direct URL denial on the target Apache or
-  Nginx server.
+- Verify migration, concurrent requests, and direct URL denial on the target
+  server.

@@ -3,7 +3,7 @@
 **Document type:** Master plan, no code
 **Version of this doc:** 1.0
 **Plugin version target:** 1.0.0
-**Status:** D1–D16 implemented; D17 onward pending
+**Status:** D1–D17 implemented; D18 onward pending
 
 ---
 
@@ -91,8 +91,9 @@
 
 ### 3.3 Storage Design
 
-- Location: a dedicated folder inside the WordPress uploads directory.
-- The folder receives an Apache `.htaccess` deny rule and an `index.php` guard. Nginx does not read `.htaccess`; Nginx deployments must also deny direct requests to this folder in server configuration before storing real knowledge data.
+- Location: a dedicated private folder outside the web document root. The default is a site-specific directory alongside the document root; define `BRYVIUM_WFC_DATA_DIR` to use another writable private location.
+- Existing knowledge, backup, and atomic-write temporary files are migrated from the legacy uploads folder on activation or the first request after upgrade. Files are verified in the private destination before legacy copies are removed. A failed migration leaves legacy data intact and reports an administrator notice.
+- The legacy uploads folder receives an Apache `.htaccess` deny rule and an `index.php` guard. Nginx does not read `.htaccess`; a server-level deny rule is recommended as defense in depth.
 - Writes are atomic: write to a temporary file, then rename over the real file, while holding an exclusive lock.
 - Reads use a shared lock and a cache keyed by the file modification time.
 - Practical scale limit: about 1,000 entries or 2 MB. Larger sets are a roadmap item (sharding).
@@ -217,7 +218,7 @@ Admin routes require the `manage_options` capability and a valid REST nonce.
 
 | Threat | Defense |
 |---|---|
-| Direct download of `knowledge.json` | Protected folder, `.htaccess` deny, blank index file, served via REST only |
+| Direct download of `knowledge.json` | Store outside the document root, private filesystem permissions, served via REST only; deny the legacy uploads folder on Nginx during/after migration |
 | Cross-site request forgery | Nonce on every state-changing request |
 | Privilege escalation | Capability check on every admin route and screen |
 | Injection through input | Sanitize every field, strict length limits, type validation |

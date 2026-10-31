@@ -75,3 +75,9 @@
 
 - [Day 16 notes](./day-16-notes.md): settings-driven colors, shortcode display, asset enqueueing, and verification.
 - [Day 16 bugs](./day-16-bugs.md): remaining live WordPress page and duplicate-mount checks.
+
+## Day 17 — Security Audit
+
+- [Day 17 notes](./day-17-notes.md): audit scope, validation, and handoff.
+- [Day 17 bugs](./day-17-bugs.md): remediated Nginx exposure and live migration checks.
+- [Security checklist](../SECURITY-CHECKLIST.md): audit results and required server-side mitigation.

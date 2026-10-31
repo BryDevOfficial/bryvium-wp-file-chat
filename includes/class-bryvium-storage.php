@@ -118,7 +118,14 @@ final class Bryvium_Storage {
 	const SCHEMA_VERSION = 1;
 
 	/**
-	 * Ensure the protected storage directory and initial data file exist.
+	 * On-disk storage layout version.
+	 *
+	 * @var int
+	 */
+	const STORAGE_VERSION = 2;
+
+	/**
+	 * Ensure private storage exists and migrate any legacy uploads data.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -129,7 +136,22 @@ final class Bryvium_Storage {
 		}
 
 		if ( ! wp_mkdir_p( $paths['directory'] ) ) {
-			return self::error( 'directory_unavailable', __( 'The knowledge storage directory could not be created.', 'bryvium-wp-file-chat' ) );
+			return self::error( 'directory_unavailable', __( 'The private knowledge storage directory could not be created. Configure BRYVIUM_WFC_DATA_DIR to a writable directory outside the web root with an existing parent directory.', 'bryvium-wp-file-chat' ) );
+		}
+
+		$resolved_directory = realpath( $paths['directory'] );
+		$document_root      = self::get_document_root();
+		if ( false === $resolved_directory || false === $document_root || self::is_inside_directory( $resolved_directory, $document_root ) ) {
+			return self::error( 'directory_not_private', __( 'The knowledge storage directory must be outside the web root. Configure BRYVIUM_WFC_DATA_DIR to a writable private directory.', 'bryvium-wp-file-chat' ) );
+		}
+
+		if ( ! @chmod( $resolved_directory, 0700 ) ) {
+			return self::error( 'directory_permissions_failed', __( 'The private knowledge storage directory permissions could not be secured.', 'bryvium-wp-file-chat' ) );
+		}
+
+		$migration = self::migrate_legacy_storage( $paths );
+		if ( is_wp_error( $migration ) ) {
+			return $migration;
 		}
 
 		$protection = self::write_protection_files( $paths );
@@ -513,15 +535,214 @@ final class Bryvium_Storage {
 			return self::error( 'uploads_unavailable', __( 'The WordPress uploads directory is unavailable.', 'bryvium-wp-file-chat' ) );
 		}
 
-		$directory = trailingslashit( $uploads['basedir'] ) . 'bryvium-chat';
+		$legacy_directory = trailingslashit( $uploads['basedir'] ) . 'bryvium-chat';
+		$directory        = self::get_private_directory( $legacy_directory );
+		if ( is_wp_error( $directory ) ) {
+			return $directory;
+		}
 
 		return array(
-			'directory' => $directory,
-			'data'      => trailingslashit( $directory ) . 'knowledge.json',
-			'lock'      => trailingslashit( $directory ) . '.knowledge.lock',
-			'htaccess'  => trailingslashit( $directory ) . '.htaccess',
-			'index'     => trailingslashit( $directory ) . 'index.php',
+			'directory'        => $directory,
+			'data'             => trailingslashit( $directory ) . 'knowledge.json',
+			'lock'             => trailingslashit( $directory ) . '.knowledge.lock',
+			'htaccess'         => trailingslashit( $directory ) . '.htaccess',
+			'index'            => trailingslashit( $directory ) . 'index.php',
+			'legacy_directory' => $legacy_directory,
 		);
+	}
+
+	/**
+	 * Select a writable data directory that resolves outside the web root.
+	 *
+	 * @param string $legacy_directory Previous uploads directory.
+	 * @return string|WP_Error
+	 */
+	private static function get_private_directory( $legacy_directory ) {
+		$document_root = self::get_document_root();
+		if ( false === $document_root || ! is_dir( $document_root ) ) {
+			return self::error( 'document_root_unavailable', __( 'The web root could not be verified, so private knowledge storage cannot be selected safely.', 'bryvium-wp-file-chat' ) );
+		}
+
+		if ( defined( 'BRYVIUM_WFC_DATA_DIR' ) ) {
+			$directory = BRYVIUM_WFC_DATA_DIR;
+			if ( ! is_string( $directory ) || '' === trim( $directory ) ) {
+				return self::error( 'invalid_private_directory', __( 'BRYVIUM_WFC_DATA_DIR must be an absolute directory outside the web root.', 'bryvium-wp-file-chat' ) );
+			}
+			$normalized_directory = wp_normalize_path( $directory );
+			if ( '/' !== substr( $normalized_directory, 0, 1 ) && ! preg_match( '/^[A-Za-z]:\\//', $normalized_directory ) ) {
+				return self::error( 'invalid_private_directory', __( 'BRYVIUM_WFC_DATA_DIR must be an absolute directory outside the web root.', 'bryvium-wp-file-chat' ) );
+			}
+		} else {
+			$directory = trailingslashit( dirname( $document_root ) )
+				. 'bryvium-wfc-' . substr( hash( 'sha256', wp_normalize_path( $legacy_directory ) ), 0, 16 );
+		}
+
+		$directory = wp_normalize_path( $directory );
+		$parent    = realpath( dirname( $directory ) );
+		if ( false === $parent || in_array( basename( $directory ), array( '.', '..', '' ), true ) ) {
+			return self::error( 'invalid_private_directory', __( 'The private knowledge storage parent directory is unavailable. Configure BRYVIUM_WFC_DATA_DIR with an existing parent directory outside the web root.', 'bryvium-wp-file-chat' ) );
+		}
+
+		$resolved_directory = realpath( $directory );
+		if ( false === $resolved_directory ) {
+			$resolved_directory = trailingslashit( $parent ) . basename( $directory );
+		}
+
+		if ( self::is_inside_directory( $resolved_directory, $document_root ) ) {
+			return self::error( 'directory_not_private', __( 'Knowledge storage must be outside the web root. Configure BRYVIUM_WFC_DATA_DIR to a writable private directory.', 'bryvium-wp-file-chat' ) );
+		}
+
+		return $resolved_directory;
+	}
+
+	/**
+	 * Resolve the web root only when the server provides a valid document root.
+	 *
+	 * @return string|false
+	 */
+	private static function get_document_root() {
+		if ( ! isset( $_SERVER['DOCUMENT_ROOT'] ) || ! is_string( $_SERVER['DOCUMENT_ROOT'] ) || '' === $_SERVER['DOCUMENT_ROOT'] ) {
+			return false;
+		}
+
+		$document_root = sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) );
+		$resolved      = realpath( $document_root );
+
+		return false === $resolved ? false : wp_normalize_path( $resolved );
+	}
+
+	/**
+	 * Check whether a path is equal to or nested under another path.
+	 *
+	 * @param string $path Candidate path.
+	 * @param string $directory Parent path.
+	 * @return bool
+	 */
+	private static function is_inside_directory( $path, $directory ) {
+		$path      = strtolower( untrailingslashit( wp_normalize_path( $path ) ) );
+		$directory = strtolower( untrailingslashit( wp_normalize_path( $directory ) ) );
+		if ( '' === $directory ) {
+			$directory = '/';
+		}
+
+		return $path === $directory || 0 === strpos( $path, trailingslashit( $directory ) );
+	}
+
+	/**
+	 * Move legacy knowledge and backup files out of the public uploads folder.
+	 *
+	 * @param array $paths Storage paths.
+	 * @return true|WP_Error
+	 */
+	private static function migrate_legacy_storage( $paths ) {
+		$legacy_directory = $paths['legacy_directory'];
+		if ( ! is_dir( $legacy_directory ) || realpath( $legacy_directory ) === realpath( $paths['directory'] ) ) {
+			return true;
+		}
+
+		$names = @scandir( $legacy_directory );
+		if ( false === $names ) {
+			return self::error( 'migration_read_failed', __( 'Legacy knowledge storage could not be read for migration.', 'bryvium-wp-file-chat' ) );
+		}
+
+		$has_legacy_data = false;
+		foreach ( $names as $name ) {
+			if ( self::is_legacy_data_file( $name ) ) {
+				$has_legacy_data = true;
+				break;
+			}
+		}
+		if ( ! $has_legacy_data ) {
+			return true;
+		}
+
+		$legacy_lock_path = trailingslashit( $legacy_directory ) . '.knowledge.lock';
+		if ( is_link( $legacy_lock_path ) ) {
+			return self::error( 'migration_lock_failed', __( 'Legacy knowledge storage could not be locked for migration.', 'bryvium-wp-file-chat' ) );
+		}
+
+		$legacy_lock = @fopen( $legacy_lock_path, 'c' );
+		if ( false === $legacy_lock || ! flock( $legacy_lock, LOCK_EX ) ) {
+			if ( is_resource( $legacy_lock ) ) {
+				fclose( $legacy_lock );
+			}
+			return self::error( 'migration_lock_failed', __( 'Legacy knowledge storage could not be locked for migration.', 'bryvium-wp-file-chat' ) );
+		}
+
+		try {
+			$names = @scandir( $legacy_directory );
+			if ( false === $names ) {
+				return self::error( 'migration_read_failed', __( 'Legacy knowledge storage could not be read for migration.', 'bryvium-wp-file-chat' ) );
+			}
+
+			$files = array();
+			foreach ( $names as $name ) {
+				if ( self::is_legacy_data_file( $name ) ) {
+					$source = trailingslashit( $legacy_directory ) . $name;
+					if ( is_link( $source ) ) {
+						return self::error( 'migration_file_invalid', __( 'A legacy knowledge file could not be safely migrated.', 'bryvium-wp-file-chat' ) );
+					}
+					if ( is_file( $source ) ) {
+						$files[] = $name;
+					}
+				}
+			}
+
+			foreach ( $files as $name ) {
+				$source   = trailingslashit( $legacy_directory ) . $name;
+				$target   = 'knowledge.json' === $name
+					? $paths['data']
+					: trailingslashit( $paths['directory'] ) . $name;
+				$contents = @file_get_contents( $source );
+				if ( false === $contents ) {
+					return self::error( 'migration_read_failed', __( 'A legacy knowledge file could not be read for migration.', 'bryvium-wp-file-chat' ) );
+				}
+
+				if ( file_exists( $target ) ) {
+					$existing = is_link( $target ) ? false : @file_get_contents( $target );
+					if ( false === $existing || $existing !== $contents ) {
+						return self::error( 'migration_conflict', __( 'Legacy knowledge data conflicts with private storage. No legacy data was removed.', 'bryvium-wp-file-chat' ) );
+					}
+				} else {
+					$write_result = self::write_file_atomically(
+						$paths['directory'],
+						$target,
+						$contents,
+						'migration_write_failed',
+						__( 'Legacy knowledge data could not be copied to private storage. No legacy data was removed.', 'bryvium-wp-file-chat' )
+					);
+					if ( is_wp_error( $write_result ) ) {
+						return $write_result;
+					}
+				}
+
+				if ( @file_get_contents( $target ) !== $contents ) {
+					return self::error( 'migration_verify_failed', __( 'Migrated knowledge data could not be verified. No legacy data was removed.', 'bryvium-wp-file-chat' ) );
+				}
+			}
+
+			foreach ( $files as $name ) {
+				if ( ! @unlink( trailingslashit( $legacy_directory ) . $name ) ) {
+					return self::error( 'migration_cleanup_failed', __( 'Private storage was created, but legacy knowledge files could not be removed from uploads.', 'bryvium-wp-file-chat' ) );
+				}
+			}
+		} finally {
+			flock( $legacy_lock, LOCK_UN );
+			fclose( $legacy_lock );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Identify legacy files that may contain knowledge data.
+	 *
+	 * @param string $name Legacy filename.
+	 * @return bool
+	 */
+	private static function is_legacy_data_file( $name ) {
+		return 'knowledge.json' === $name
+			|| (bool) preg_match( '/^(?:knowledge-backup-[a-zA-Z0-9-]+\\.json|\\.bryvium-[a-zA-Z0-9]+)$/', $name );
 	}
 
 	/**
@@ -718,7 +939,10 @@ final class Bryvium_Storage {
 			return self::error( $error_code, $error_message );
 		}
 
-		@chmod( $temp_file, 0644 );
+		if ( ! @chmod( $temp_file, 0600 ) ) {
+			@unlink( $temp_file );
+			return self::error( $error_code, $error_message );
+		}
 		if ( ! @rename( $temp_file, $target ) ) {
 			@unlink( $temp_file );
 			return self::error( $error_code, $error_message );

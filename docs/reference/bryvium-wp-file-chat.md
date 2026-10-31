@@ -42,7 +42,7 @@ Visitor types → React widget → POST /wp-json/bryvium/v1/chat (nonce + rate l
 
 | Concern     | Decision                                                                                                                                                                     |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Storage     | `knowledge.json` in `wp-content/uploads/bryvium-chat/`, protected by `.htaccess` + `index.php`, and served only via REST                                                     |
+| Storage     | `knowledge.json` in a site-specific private directory outside the web document root; legacy uploads data is migrated and removed after verification |
 | Concurrency | `flock()` exclusive lock on writes, atomic write (temp file + rename)                                                                                                        |
 | Caching     | Parsed JSON cached in a transient/object cache keyed by file `filemtime`                                                                                                     |
 | Search      | Pure PHP: lowercase, strip stopwords, tokenize, weighted scoring (title > keywords > body), simple stemming, fuzzy fallback via `similar_text`/`levenshtein` on short tokens |

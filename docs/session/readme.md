@@ -59,4 +59,9 @@
 ## Day 13 — Chat UI
 
 - [Day 13 notes](./day-13-notes.md): launcher, chat window, messages, input, and verification.
-- [Day 13 bugs](./day-13-bugs.md): remaining live-theme visual checks and D14 API dependency.
+- [Day 13 bugs](./day-13-bugs.md): resolved D14 placeholder and remaining live-theme visual checks.
+
+## Day 14 — API Integration and Chat Logic
+
+- [Day 14 notes](./day-14-notes.md): REST client, chat hook, session history, and verification.
+- [Day 14 bugs](./day-14-bugs.md): remaining live WordPress acceptance checks.

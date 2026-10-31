@@ -3,7 +3,7 @@
 **Document type:** Master plan, no code
 **Version of this doc:** 1.0
 **Plugin version target:** 1.0.0
-**Status:** D1–D15 implemented; D16 onward pending
+**Status:** D1–D16 implemented; D17 onward pending
 
 ---
 

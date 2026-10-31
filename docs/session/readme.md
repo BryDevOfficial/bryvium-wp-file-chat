@@ -70,3 +70,8 @@
 
 - [Day 15 notes](./day-15-notes.md): focus management, live announcements, contrast, touch targets, responsive layout, and verification.
 - [Day 15 bugs](./day-15-bugs.md): remaining manual keyboard, screen reader, and mobile checks.
+
+## Day 16 — Theming and Shortcode
+
+- [Day 16 notes](./day-16-notes.md): settings-driven colors, shortcode display, asset enqueueing, and verification.
+- [Day 16 bugs](./day-16-bugs.md): remaining live WordPress page and duplicate-mount checks.

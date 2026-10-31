@@ -57,6 +57,7 @@ $bryvium_wfc_settings = Bryvium_Settings::get();
 					</th>
 					<td>
 						<input id="bryvium-wfc-primary-color" type="color" name="bryvium_wfc_settings[primary_color]" value="<?php echo esc_attr( $bryvium_wfc_settings['primary_color'] ); ?>">
+						<p class="description"><?php echo esc_html__( 'The widget automatically chooses a readable text color for the selected primary color.', 'bryvium-wp-file-chat' ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -78,6 +79,8 @@ $bryvium_wfc_settings = Bryvium_Settings::get();
 							<input id="bryvium-wfc-auto-display" type="checkbox" name="bryvium_wfc_settings[auto_display]" value="1" <?php checked( $bryvium_wfc_settings['auto_display'] ); ?>>
 							<?php echo esc_html__( 'Display the widget automatically on site pages', 'bryvium-wp-file-chat' ); ?>
 						</label>
+						<br>
+						<p class="description"><?php echo esc_html__( 'To show the widget only on selected pages, leave automatic display off and add the [bryvium_chat] shortcode to the page content.', 'bryvium-wp-file-chat' ); ?></p>
 						<br>
 						<label for="bryvium-wfc-save-history">
 							<input type="hidden" name="bryvium_wfc_settings[save_history]" value="0">

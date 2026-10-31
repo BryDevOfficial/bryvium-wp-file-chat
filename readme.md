@@ -9,8 +9,9 @@ database tables.
 > plugin bootstrap, build tooling, JSON storage, search processing/ranking,
 > REST rate limiting and caching, admin settings, knowledge manager, and
 > capability-gated admin REST API and JSON import/export tools are implemented.
-> The frontend widget interface, live chat API integration, and accessibility
-> and mobile improvements are implemented.
+> The frontend widget interface, live chat API integration, accessibility and
+> mobile improvements, settings-driven theming, and shortcode display are
+> implemented.
 
 ## Requirements
 

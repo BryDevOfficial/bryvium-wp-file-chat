@@ -14,6 +14,11 @@
   box-sizing: border-box;
 }
 
+#bwfc-root {
+  --bwfc-primary-color: #2563eb;
+  --bwfc-primary-text-color: #ffffff;
+}
+
 #bwfc-root :focus-visible {
   outline: 2px solid #0f172a;
   outline-offset: 2px;

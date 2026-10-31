@@ -7,9 +7,9 @@ database tables.
 
 > **Development status:** This project is being built in daily stages. The
 > plugin bootstrap, build tooling, JSON storage, search processing/ranking,
-> REST rate limiting and caching, admin settings, and the knowledge manager
-> interface are implemented. The chat interface and admin REST API are still
-> in development.
+> REST rate limiting and caching, admin settings, knowledge manager, and
+> capability-gated admin REST API are implemented. The chat interface and
+> import/export tools are still in development.
 
 ## Requirements
 
@@ -51,7 +51,7 @@ composer fix
 
 - `bryvium-wp-file-chat.php` — WordPress plugin entry point and constants.
 - `includes/` — PHP lifecycle, JSON storage, search processing/ranking, and
-  planned backend modules.
+  REST endpoints.
 - `src/` — React and Tailwind source for the frontend.
 - `build/` — Compiled frontend assets.
 - `admin/` — WordPress admin settings and knowledge manager interfaces.

@@ -110,6 +110,26 @@ final class Bryvium_Rest_Admin {
 				'schema' => array( __CLASS__, 'get_item_schema' ),
 			)
 		);
+
+		register_rest_route(
+			'bryvium/v1',
+			'/export',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'export_entries' ),
+				'permission_callback' => array( __CLASS__, 'check_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'bryvium/v1',
+			'/import',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'import_entries' ),
+				'permission_callback' => array( __CLASS__, 'check_permission' ),
+			)
+		);
 	}
 
 	/**
@@ -268,6 +288,85 @@ final class Bryvium_Rest_Admin {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Download the current knowledge document as JSON.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function export_entries() {
+		$document = Bryvium_Importer::export_document();
+		if ( is_wp_error( $document ) ) {
+			return $document;
+		}
+
+		$response = new WP_REST_Response( $document, 200 );
+		$response->header( 'Content-Disposition', 'attachment; filename="bryvium-knowledge.json"' );
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+
+		return $response;
+	}
+
+	/**
+	 * Import pasted JSON or an uploaded JSON file.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function import_entries( $request ) {
+		$mode     = $request->get_param( 'mode' );
+		$files    = $request->get_file_params();
+		$contents = null;
+
+		if ( isset( $files['file'] ) ) {
+			$file = $files['file'];
+			if ( ! isset( $file['error'], $file['tmp_name'] )
+				|| UPLOAD_ERR_OK !== $file['error']
+				|| ! is_uploaded_file( $file['tmp_name'] )
+			) {
+				return new WP_Error(
+					'bryvium_wfc_import_upload_failed',
+					__( 'The JSON file could not be uploaded. Choose it again and retry.', 'bryvium-wp-file-chat' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$file_size = isset( $file['size'] ) && is_numeric( $file['size'] ) ? (int) $file['size'] : 0;
+			if ( $file_size > Bryvium_Importer::MAX_IMPORT_BYTES ) {
+				return new WP_Error(
+					'bryvium_wfc_import_too_large',
+					__( 'The import file must be no larger than 1 MB.', 'bryvium-wp-file-chat' ),
+					array( 'status' => 413 )
+				);
+			}
+
+			// Read only PHP's temporary upload; never execute or move uploaded content.
+			$contents = file_get_contents( $file['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			if ( false === $contents ) {
+				return new WP_Error(
+					'bryvium_wfc_import_upload_unreadable',
+					__( 'The uploaded JSON file could not be read.', 'bryvium-wp-file-chat' ),
+					array( 'status' => 400 )
+				);
+			}
+		} else {
+			$contents = $request->get_param( 'content' );
+			if ( is_string( $contents ) && strlen( $contents ) > Bryvium_Importer::MAX_IMPORT_BYTES ) {
+				return new WP_Error(
+					'bryvium_wfc_import_too_large',
+					__( 'The import file must be no larger than 1 MB.', 'bryvium-wp-file-chat' ),
+					array( 'status' => 413 )
+				);
+			}
+		}
+
+		$summary = Bryvium_Importer::import( $contents, $mode );
+		if ( is_wp_error( $summary ) ) {
+			return $summary;
+		}
+
+		return new WP_REST_Response( array( 'summary' => $summary ), 200 );
 	}
 
 	/**

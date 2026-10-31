@@ -45,3 +45,8 @@
 
 - [Day 10 notes](./day-10-notes.md): capability-gated CRUD routes, response shapes, and verification.
 - [Day 10 bugs](./day-10-bugs.md): remaining live-WordPress and deployment checks.
+
+## Day 11 — Import and Export
+
+- [Day 11 notes](./day-11-notes.md): JSON validation, merge/replace, backups, and verification.
+- [Day 11 bugs](./day-11-bugs.md): remaining live-WordPress and upload checks.

@@ -28,15 +28,16 @@ final class Bryvium_Widget {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_mount' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'render_build_notice' ) );
+		add_shortcode( 'bryvium_chat', array( __CLASS__, 'render_shortcode' ) );
 	}
 
 	/**
-	 * Enqueue built assets only when auto display is enabled.
+	 * Enqueue built assets when auto display or the shortcode is enabled.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_assets() {
-		if ( is_admin() || ! self::is_enabled() ) {
+		if ( is_admin() || ( ! self::is_enabled() && ! self::has_widget_shortcode() ) ) {
 			return;
 		}
 
@@ -101,12 +102,32 @@ final class Bryvium_Widget {
 	}
 
 	/**
+	 * Render the widget mount point for the shortcode.
+	 *
+	 * @return string
+	 */
+	public static function render_shortcode() {
+		if ( is_admin() || self::$mount_printed ) {
+			return '';
+		}
+
+		$script_path = BRYVIUM_WFC_PATH . 'build/bryvium-chat.js';
+		$style_path  = BRYVIUM_WFC_PATH . 'build/bryvium-chat.css';
+		if ( ! is_readable( $script_path ) || ! is_readable( $style_path ) ) {
+			return '';
+		}
+
+		self::$mount_printed = true;
+		return '<div id="bwfc-root"></div>';
+	}
+
+	/**
 	 * Show administrators a notice when a production build is unavailable.
 	 *
 	 * @return void
 	 */
 	public static function render_build_notice() {
-		if ( ! current_user_can( 'manage_options' ) || ! self::is_enabled() ) {
+		if ( ! current_user_can( 'manage_options' ) || ( ! self::is_enabled() && ! self::has_widget_shortcode() ) ) {
 			return;
 		}
 
@@ -130,5 +151,19 @@ final class Bryvium_Widget {
 	private static function is_enabled() {
 		$settings = Bryvium_Settings::get();
 		return ! empty( $settings['auto_display'] );
+	}
+
+	/**
+	 * Check whether the current queried post contains the widget shortcode.
+	 *
+	 * @return bool
+	 */
+	private static function has_widget_shortcode() {
+		$queried_object = get_queried_object();
+		if ( ! is_object( $queried_object ) || ! isset( $queried_object->post_content ) ) {
+			return false;
+		}
+
+		return has_shortcode( $queried_object->post_content, 'bryvium_chat' );
 	}
 }

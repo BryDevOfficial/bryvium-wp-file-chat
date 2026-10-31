@@ -4,7 +4,8 @@
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme) prefix(bwfc);
-@import "tailwindcss/utilities.css" layer(utilities) prefix(bwfc);
+@import "tailwindcss/utilities.css" layer(utilities) prefix(bwfc) source(none);
+@source "./";
 
 #bwfc-root,
 #bwfc-root *,

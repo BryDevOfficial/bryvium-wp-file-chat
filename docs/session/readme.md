@@ -55,3 +55,8 @@
 
 - [Day 12 notes](./day-12-notes.md): frontend enqueue, localized config, React mount, and verification.
 - [Day 12 bugs](./day-12-bugs.md): remaining live-WordPress and theme integration checks.
+
+## Day 13 — Chat UI
+
+- [Day 13 notes](./day-13-notes.md): launcher, chat window, messages, input, and verification.
+- [Day 13 bugs](./day-13-bugs.md): remaining live-theme visual checks and D14 API dependency.

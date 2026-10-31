@@ -13,6 +13,13 @@ defined( 'ABSPATH' ) || exit;
 final class Bryvium_Loader {
 
 	/**
+	 * Storage migration error shown to administrators.
+	 *
+	 * @var string
+	 */
+	private static $storage_setup_error = '';
+
+	/**
 	 * Check PHP and WordPress minimum versions.
 	 *
 	 * @return bool
@@ -65,6 +72,7 @@ final class Bryvium_Loader {
 		}
 
 		update_option( 'bryvium_wfc_version', BRYVIUM_WFC_VERSION, false );
+		update_option( 'bryvium_wfc_storage_version', Bryvium_Storage::STORAGE_VERSION, false );
 	}
 
 	/**
@@ -92,6 +100,16 @@ final class Bryvium_Loader {
 			return;
 		}
 
+		if ( (int) get_option( 'bryvium_wfc_storage_version', 0 ) < Bryvium_Storage::STORAGE_VERSION ) {
+			$storage_result = Bryvium_Storage::setup();
+			if ( is_wp_error( $storage_result ) ) {
+				self::$storage_setup_error = $storage_result->get_error_message();
+				add_action( 'admin_notices', array( __CLASS__, 'render_storage_notice' ) );
+			} else {
+				update_option( 'bryvium_wfc_storage_version', Bryvium_Storage::STORAGE_VERSION, false );
+			}
+		}
+
 		Bryvium_Rest::register();
 		Bryvium_Rest_Admin::register();
 		Bryvium_Admin::register();
@@ -102,6 +120,22 @@ final class Bryvium_Loader {
 		 * (storage D3, REST D6/D10, admin D8/D9, widget D12).
 		 */
 		do_action( 'bryvium_wfc_loaded' );
+	}
+
+	/**
+	 * Report private storage migration failures to site administrators.
+	 *
+	 * @return void
+	 */
+	public static function render_storage_notice() {
+		if ( ! current_user_can( 'manage_options' ) || '' === self::$storage_setup_error ) {
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-error"><p>%s</p></div>',
+			esc_html( self::$storage_setup_error )
+		);
 	}
 
 	/**

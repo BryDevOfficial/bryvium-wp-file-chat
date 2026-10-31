@@ -13,6 +13,10 @@ database tables.
 > mobile improvements, settings-driven theming, and shortcode display are
 > implemented.
 
+Knowledge data is stored outside the web document root. Existing uploads data
+is migrated on upgrade; configure `BRYVIUM_WFC_DATA_DIR` in `wp-config.php` if
+the default private parent directory is not writable.
+
 ## Requirements
 
 - WordPress 7.1.4 or later

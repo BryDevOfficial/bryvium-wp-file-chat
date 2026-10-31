@@ -13,3 +13,30 @@
 #bwfc-root *::after {
   box-sizing: border-box;
 }
+
+#bwfc-root :focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #fff;
+}
+
+@media (max-width: 639px) {
+  #bwfc-root .bwfc-chat-window > header {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  #bwfc-root .bwfc-chat-window > form {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bwfc-root *,
+  #bwfc-root *::before,
+  #bwfc-root *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -5,7 +5,9 @@ export default function ChatLauncher({ buttonRef, isOpen, onClick, title }) {
     <button
       ref={buttonRef}
       type="button"
-      className="bwfc:pointer-events-auto bwfc:ml-auto bwfc:flex bwfc:h-14 bwfc:w-14 bwfc:items-center bwfc:justify-center bwfc:rounded-full bwfc:border-0 bwfc:bg-[var(--bwfc-primary-color)] bwfc:text-white bwfc:shadow-lg bwfc:transition bwfc:duration-200 bwfc:hover:brightness-110 bwfc:focus-visible:outline-2 bwfc:focus-visible:outline-offset-2 bwfc:focus-visible:outline-[var(--bwfc-primary-color)]"
+      className={`bwfc:pointer-events-auto bwfc:ml-auto bwfc:flex bwfc:h-14 bwfc:w-14 bwfc:items-center bwfc:justify-center bwfc:rounded-full bwfc:border-0 bwfc:bg-[var(--bwfc-primary-color)] bwfc:text-[var(--bwfc-primary-text-color)] bwfc:shadow-lg bwfc:transition bwfc:duration-200 bwfc:hover:brightness-95 bwfc:focus-visible:outline-2 bwfc:focus-visible:outline-offset-2 ${
+        isOpen ? "bwfc:hidden bwfc:sm:flex" : ""
+      }`}
       aria-label={label}
       aria-expanded={isOpen}
       aria-controls="bwfc-chat-window"

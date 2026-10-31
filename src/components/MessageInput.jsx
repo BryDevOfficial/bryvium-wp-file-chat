@@ -1,17 +1,18 @@
 import { useState } from "react";
 
-export default function MessageInput({ onSend, placeholder }) {
+export default function MessageInput({ onSend, placeholder, isLoading }) {
   const [value, setValue] = useState("");
 
   function submitMessage(event) {
     event.preventDefault();
     const message = value.trim();
-    if (!message) {
+    if (!message || isLoading || Array.from(message).length > 300) {
       return;
     }
 
-    onSend(message);
-    setValue("");
+    if (onSend(message)) {
+      setValue("");
+    }
   }
 
   return (
@@ -26,16 +27,18 @@ export default function MessageInput({ onSend, placeholder }) {
         id="bwfc-chat-message"
         className="bwfc:max-h-28 bwfc:min-h-11 bwfc:min-w-0 bwfc:flex-1 bwfc:resize-y bwfc:rounded-xl bwfc:border bwfc:border-slate-300 bwfc:bg-white bwfc:px-3 bwfc:py-2.5 bwfc:text-sm bwfc:text-slate-900 bwfc:placeholder:text-slate-500 bwfc:focus:border-[var(--bwfc-primary-color)] bwfc:focus:outline-none bwfc:focus:ring-2 bwfc:focus:ring-[var(--bwfc-primary-color)]/25 bwfc:dark:border-slate-600 bwfc:dark:bg-slate-800 bwfc:dark:text-slate-100"
         rows="1"
-        maxLength="300"
+        disabled={isLoading}
         placeholder={placeholder}
         value={value}
-        onChange={(event) => setValue(event.target.value)}
+        onChange={(event) =>
+          setValue(Array.from(event.target.value).slice(0, 300).join(""))
+        }
       />
       <button
         type="submit"
         className="bwfc:flex bwfc:h-11 bwfc:w-11 bwfc:shrink-0 bwfc:items-center bwfc:justify-center bwfc:rounded-xl bwfc:border-0 bwfc:bg-[var(--bwfc-primary-color)] bwfc:text-white bwfc:hover:brightness-110 bwfc:focus-visible:outline-2 bwfc:focus-visible:outline-offset-2 bwfc:focus-visible:outline-[var(--bwfc-primary-color)] bwfc:disabled:cursor-not-allowed bwfc:disabled:opacity-50"
         aria-label="Send message"
-        disabled={!value.trim()}
+        disabled={isLoading || !value.trim()}
       >
         <svg
           aria-hidden="true"

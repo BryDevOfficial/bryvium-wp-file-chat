@@ -6,6 +6,7 @@ export default function ChatWindow({
   onClose,
   onSend,
   messages,
+  isLoading,
   title,
   placeholder,
   position,
@@ -51,8 +52,16 @@ export default function ChatWindow({
           </svg>
         </button>
       </header>
-      <MessageList messages={messages} />
-      <MessageInput onSend={onSend} placeholder={placeholder} />
+      <MessageList
+        messages={messages}
+        isLoading={isLoading}
+        onSuggestionClick={onSend}
+      />
+      <MessageInput
+        onSend={onSend}
+        placeholder={placeholder}
+        isLoading={isLoading}
+      />
     </section>
   );
 }

@@ -9,7 +9,7 @@ database tables.
 > plugin bootstrap, build tooling, JSON storage, search processing/ranking,
 > REST rate limiting and caching, admin settings, knowledge manager, and
 > capability-gated admin REST API and JSON import/export tools are implemented.
-> The frontend widget skeleton is implemented; the interactive chat experience
+> The frontend widget interface is implemented; its live chat API integration
 > is still in development.
 
 ## Requirements

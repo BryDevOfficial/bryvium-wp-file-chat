@@ -65,3 +65,8 @@
 
 - [Day 14 notes](./day-14-notes.md): REST client, chat hook, session history, and verification.
 - [Day 14 bugs](./day-14-bugs.md): remaining live WordPress acceptance checks.
+
+## Day 15 — Accessibility and Mobile
+
+- [Day 15 notes](./day-15-notes.md): focus management, live announcements, contrast, touch targets, responsive layout, and verification.
+- [Day 15 bugs](./day-15-bugs.md): remaining manual keyboard, screen reader, and mobile checks.

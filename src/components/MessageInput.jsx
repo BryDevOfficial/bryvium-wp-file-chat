@@ -36,7 +36,7 @@ export default function MessageInput({ onSend, placeholder, isLoading }) {
       />
       <button
         type="submit"
-        className="bwfc:flex bwfc:h-11 bwfc:w-11 bwfc:shrink-0 bwfc:items-center bwfc:justify-center bwfc:rounded-xl bwfc:border-0 bwfc:bg-[var(--bwfc-primary-color)] bwfc:text-white bwfc:hover:brightness-110 bwfc:focus-visible:outline-2 bwfc:focus-visible:outline-offset-2 bwfc:focus-visible:outline-[var(--bwfc-primary-color)] bwfc:disabled:cursor-not-allowed bwfc:disabled:opacity-50"
+        className="bwfc:flex bwfc:h-11 bwfc:w-11 bwfc:shrink-0 bwfc:items-center bwfc:justify-center bwfc:rounded-xl bwfc:border-0 bwfc:bg-[var(--bwfc-primary-color)] bwfc:text-[var(--bwfc-primary-text-color)] bwfc:hover:brightness-95 bwfc:focus-visible:outline-2 bwfc:focus-visible:outline-offset-2 bwfc:disabled:cursor-not-allowed bwfc:disabled:opacity-50"
         aria-label="Send message"
         disabled={isLoading || !value.trim()}
       >

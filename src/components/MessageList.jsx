@@ -64,7 +64,13 @@ export default function MessageList({
   const endRef = useRef(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    endRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "end",
+    });
   }, [messages]);
 
   return (
@@ -89,7 +95,7 @@ export default function MessageList({
               <p
                 className={`bwfc:m-0 bwfc:max-w-full bwfc:whitespace-pre-wrap bwfc:break-words bwfc:rounded-2xl bwfc:px-4 bwfc:py-2.5 bwfc:text-sm bwfc:leading-relaxed ${
                   isVisitor
-                    ? "bwfc:self-end bwfc:rounded-br-md bwfc:bg-[var(--bwfc-primary-color)] bwfc:text-white"
+                    ? "bwfc:self-end bwfc:rounded-br-md bwfc:bg-[var(--bwfc-primary-color)] bwfc:text-[var(--bwfc-primary-text-color)]"
                     : "bwfc:rounded-bl-md bwfc:bg-white bwfc:text-slate-800 bwfc:shadow-sm bwfc:ring-1 bwfc:ring-slate-200 bwfc:dark:bg-slate-800 bwfc:dark:text-slate-100 bwfc:dark:ring-slate-700"
                 }`}
               >
@@ -102,7 +108,7 @@ export default function MessageList({
                       <button
                         key={suggestion.id || suggestion.title}
                         type="button"
-                        className="bwfc:rounded-full bwfc:border bwfc:border-slate-300 bwfc:bg-white bwfc:px-3 bwfc:py-1.5 bwfc:text-left bwfc:text-xs bwfc:text-slate-700 bwfc:hover:bg-slate-100 bwfc:dark:border-slate-600 bwfc:dark:bg-slate-800 bwfc:dark:text-slate-100 bwfc:dark:hover:bg-slate-700"
+                        className="bwfc:min-h-11 bwfc:rounded-full bwfc:border bwfc:border-slate-300 bwfc:bg-white bwfc:px-4 bwfc:py-2 bwfc:text-left bwfc:text-xs bwfc:text-slate-700 bwfc:hover:bg-slate-100 bwfc:dark:border-slate-600 bwfc:dark:bg-slate-800 bwfc:dark:text-slate-100 bwfc:dark:hover:bg-slate-700"
                         disabled={isLoading}
                         onClick={() => onSuggestionClick(suggestion.title)}
                       >
